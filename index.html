@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flow Sketch</title>
+  <meta name="description" content="Map a process, mark where AI or automation might help, and show the human work that connects the steps.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d2026'/%3E%3Crect x='6' y='9' width='8' height='6' rx='2' fill='%23fff'/%3E%3Crect x='18' y='17' width='8' height='6' rx='2' fill='%23fff'/%3E%3Cpath d='M14 12h3a2 2 0 0 1 2 2v3' stroke='%23fff' stroke-width='1.8' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <div class="tb-left">
+        <span class="brand" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#1d2026"/><rect x="6" y="9" width="8" height="6" rx="2" fill="#fff"/><rect x="18" y="17" width="8" height="6" rx="2" fill="#fff"/><path d="M14 12h3a2 2 0 0 1 2 2v3" stroke="#fff" stroke-width="1.8" fill="none"/></svg>
+          <span class="brand-name">Flow Sketch</span>
+        </span>
+        <input id="sketch-title" class="title-input" type="text" aria-label="Sketch name" maxlength="120" autocomplete="off" spellcheck="true">
+        <button type="button" id="save-status" class="save-status" disabled></button>
+      </div>
+      <div class="tb-center">
+        <div class="seg" role="tablist" aria-label="View">
+          <button type="button" role="tab" id="view-canvas" aria-controls="canvas-view" aria-selected="true">Canvas</button>
+          <button type="button" role="tab" id="view-outline" aria-controls="outline-view" aria-selected="false">Outline</button>
+        </div>
+      </div>
+      <div class="tb-right">
+        <label class="switch" title="Show candidate tools on each step">
+          <input type="checkbox" id="tools-toggle">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-label">Tools</span>
+        </label>
+        <button type="button" id="check-btn" class="btn" aria-pressed="false" title="Show missing details and uncertain handoffs">Check<span class="count"></span></button>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <button type="button" id="undo-btn" class="icon-btn" aria-label="Undo" title="Undo (Ctrl+Z)"></button>
+        <button type="button" id="redo-btn" class="icon-btn" aria-label="Redo" title="Redo (Ctrl+Shift+Z)"></button>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="menu-wrap">
+          <button type="button" id="sketches-btn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="sketches-menu">Sketches</button>
+          <div id="sketches-menu" class="menu" role="menu" aria-label="Sketches" hidden></div>
+        </div>
+        <div class="menu-wrap">
+          <button type="button" id="export-btn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="export-menu">Export</button>
+          <div id="export-menu" class="menu menu-right" role="menu" aria-label="Export" hidden></div>
+        </div>
+        <button type="button" id="help-btn" class="icon-btn" aria-label="Help and glossary" title="Help and glossary"></button>
+      </div>
+    </header>
+
+    <div class="main">
+      <nav id="palette" class="palette" aria-label="Add a step">
+        <div class="pal-label">Add</div>
+        <div class="pal-items"></div>
+        <button type="button" id="pal-collapse" class="pal-collapse" aria-expanded="true" aria-label="Collapse palette"></button>
+      </nav>
+
+      <section id="canvas-view" class="canvas-view" role="tabpanel" aria-labelledby="view-canvas">
+        <div id="canvas" class="canvas">
+          <div id="world" class="world">
+            <svg id="edges" class="edges" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div id="labels" class="labels"></div>
+            <div id="cards" class="cards"></div>
+            <svg id="temp" class="temp" xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>
+          </div>
+          <div id="empty" class="empty" hidden>
+            <p>Add your first step.</p>
+            <div class="empty-actions">
+              <button type="button" class="btn primary" data-empty="add">Add step</button>
+              <button type="button" class="btn" data-empty="example">Open example</button>
+            </div>
+          </div>
+        </div>
+        <div class="canvas-tl">
+          <button type="button" id="key-btn" class="chip-btn" title="Show the key" aria-expanded="false" aria-controls="key-pop"></button>
+          <div id="key-pop" class="key-pop" hidden></div>
+        </div>
+        <div class="canvas-controls" role="group" aria-label="View controls">
+          <button type="button" id="tidy-btn" class="chip-btn" title="Arrange steps neatly"></button>
+          <span class="zoom-group">
+            <button type="button" id="zoom-out" class="icon-btn sm" aria-label="Zoom out" title="Zoom out"></button>
+            <button type="button" id="zoom-level" class="zoom-level" title="Reset to 100%">100%</button>
+            <button type="button" id="zoom-in" class="icon-btn sm" aria-label="Zoom in" title="Zoom in"></button>
+            <button type="button" id="zoom-fit" class="icon-btn sm" aria-label="Fit to screen" title="Fit to screen"></button>
+          </span>
+        </div>
+      </section>
+
+      <section id="outline-view" class="outline-view" role="tabpanel" aria-labelledby="view-outline" tabindex="-1" hidden></section>
+
+      <aside id="side" class="side" aria-label="Details" hidden></aside>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+  <div id="gloss-pop" class="gloss-pop" role="dialog" aria-label="Definition" hidden></div>
+  <dialog id="dialog" class="dialog"></dialog>
+  <input type="file" id="import-input" accept=".json,application/json" hidden>
+  <div id="print-root" class="print-root"></div>
+
+  <script src="js/catalog.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/examples.js"></script>
+  <script src="js/check.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/side.js"></script>
+  <script src="js/outline.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
