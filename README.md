@@ -4,6 +4,8 @@ A lightweight visual planning tool for the OGC Agent Builder event. Teams map a
 process, mark where AI or automation might help, and show the human work that
 connects the steps. The output is a workflow sketch, not a running automation.
 
+**Live site:** https://meredithkai7.github.io/flowsketch/
+
 ## Run it
 
 It is a static site with no build step and no dependencies.
